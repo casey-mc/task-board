@@ -1,0 +1,10 @@
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+react-frontend/build/
+
+# Dependency directories
+react-frontend/node_modules/
+express-backend/node_modules/
+
+express-backend/knexfile.js
+
+notes/
