@@ -22,19 +22,23 @@ taskListRouter.route('/')
   console.log(req.body);
   try {
     let task = await Task.query()
-     .insert({task: req.body.task, time: req.body.time})
+     .insert({task: req.body.task, time: req.body.time});
+    res.json({id: task.id});
     console.log(task);
   } catch(err) {
     next(err);
   }
-  });
-// });
-// .put((req,res,next) => {
-//   res.statusCode = 403;
-//   res.end('PUT operation not supported on /dishes');
-// })
-// .delete((req, res, next) => {
-//   res.end('Deleting all the dishes!');
-// });
+})
+.delete(async (req, res, next) => {
+  console.log(req.query.id);
+  try {
+    let task = await Task.query()
+      .delete()
+      .where('id', req.query.id);
+      res.end("Successfully deleted task");
+  } catch(err) {
+    next(err);
+  }
+});
 
 module.exports= taskListRouter;
