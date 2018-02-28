@@ -36,29 +36,45 @@ class App extends Component {
   }
 
   componentDidMount() {
-    axios.get('/taskList/')
+    axios.get('user/lists/Tasks/')
     .then((res) => {
       console.log("Obtained data from server",res.data);
       this.setState({tasks : res.data});
     })
     .catch((err) => console.log(err));
+    axios.get('user/lists/Habits/')
+    .then((res) => {
+      console.log("Obtained data from server",res.data);
+      this.setState({habits : res.data});
+    })
+    .catch((err) => console.log(err));
   }
 
   // TODO: Post new info to DB, check if task is duplicate
-  handleNewListItem(newTask) {
-    console.log("New task added", newTask);
-    let id = TaskApi.postTask(newTask);
-    if (!(id instanceof Error)) {
-      newTask.id = id;
-    } else {
-      alert("Could not reach server", id);
-    }
-    const newList = this.state.tasks.slice();
-    newList.push(newTask);
-    this.setState({tasks: newList});
+  handleNewListItem(listName, newTask) {
+    axios.post(`/user/lists/${listName}`, {
+        task: newTask.task,
+        time: newTask.time
+      })
+      .then((res) => {
+        console.log("Successfully added ", newTask);
+        newTask.id = res.data.id;
+        if (listName === "Tasks") {
+          const newList = this.state.tasks.slice();
+          newList.push(newTask);
+          this.setState({tasks: newList});
+        } else if ( listName === "Habits") {
+          const newList = this.state.habits.slice();
+          newList.push(newTask);
+          this.setState({habits: newList});
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
-  handleDeleteListItem(taskID) {
+  handleDeleteListItem(listName, taskID) {
     // Check if taskID is a valid item in this.state.tasks
     // Create new array without that index, setState
     // Call API delete
@@ -75,7 +91,13 @@ class App extends Component {
       newArray.splice(delIndex, 1);
       this.setState({tasks: newArray});
       // Call delete on API
-      TaskApi.deleteTask(taskID);
+      axios.delete(`/user/lists/${listName}`, {
+        params : {
+          id : taskID
+        }
+      })
+      .then((resp) => console.log(resp))
+      .catch((err) => console.log(err));
     } else {
       console.log("Invalid task ID");
     }
@@ -121,16 +143,16 @@ class App extends Component {
       <div>
         <NavBar></NavBar>
         <GameBoard tasks={this.state.tasks} getTask={this.getNewTask} currentTask={this.state.currentTask} completedTask={this.completedTask}></GameBoard>
-        <Grid columns={3}>
+        <Grid columns='equal' stackable={true}>
           <Grid.Row>
             <Grid.Column>
-              <TaskList name="Tasks" tasks={this.state.tasks}  onNewTask={this.handleNewListItem} onDelete={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Tasks" list={this.state.tasks}  onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Habits" tasks={this.state.habits} onNewTask={this.handleNewListItem} onDelete={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Habits" list={this.state.habits} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Supers" tasks={this.state.supers} onNewTask={this.handleNewListItem} onDelete={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Supers" list={this.state.supers} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
             </Grid.Column>
           </Grid.Row>
       </Grid>

@@ -29,6 +29,23 @@ class User extends Model {
                 from: 'User.id',
                 to: 'Task.user_id'
             }
+        },
+        habit: {
+            relation: Model.HasManyRelation,
+            // modelClass: __dirname + '\\Task',
+            modelClass: require('./Habit'),
+            join: {
+                from: 'User.id',
+                to: 'Habit.user_id'
+            }
+        },
+        Item: {
+            relation: Model.HasManyRelation,
+            modelClass: require('.Item'),
+            join: {
+                from: 'User.id',
+                to: 'Item.user_id'
+            }
         }
     }
 }

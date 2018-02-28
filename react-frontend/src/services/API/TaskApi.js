@@ -11,6 +11,7 @@ class TaskApi {
   // }
 
   static postTask(newTask) {
+    let ret = new Promise();
       axios.post("/taskList", {
           task: newTask.task,
           time: newTask.time

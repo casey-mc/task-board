@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Table, Label, Form, Input, Dropdown} from 'semantic-ui-react';
+import SegmentGroup, { Button, Table, Label, Form, Input, Dropdown, Header, Segment } from 'semantic-ui-react';
 
 
 class TaskInput extends Component {
@@ -26,40 +26,61 @@ class TaskInput extends Component {
       }
   
       submitTask(event) {
-        const newObj = Object.assign({},this.state);
-        this.props.addTask(newObj);
-        for (const item in this.state) {
-          this.setState({
-            [item] : ""
-            });
-        };
+        if (this.state.task !== "" && this.state.time > 0) {
+            const newObj = Object.assign({},this.state);
+            this.props.addTask(newObj);
+            for (const item in this.state) {
+              this.setState({
+                [item] : ""
+                });
+            };
+        } else {
+          alert("A Task needs a description and a time");
+        }
       }
   
       render() {
+        let habitRender = () => {
+          if (this.props.name === "Habits") {
+            return (
+            <Table.Cell>
+             Item Prompt
+            </Table.Cell>
+          )
+
+         }
+        }
         return(
-          <Form>
-            <Form.Group inline>
-              <Form.Field style={{ marginRight: '0', paddingRight: "0"}}>
-                <Input
-                  placeholder="Add a new task"
-                  onChange={this.handleChange}
-                  name='task'
-                  value={this.state.task}/>
-              </Form.Field>
-              <Form.Field style={{ paddingLeft: "0"}}>
-                <Input
-                  label={{basic:true, content: 'min'}}
-                  labelPosition='right'
-                  placeholder="Time"
-                  name='time'
-                  value = {this.state.time}
-                  onChange={this.handleChange}/>
-              </Form.Field>
-              <Form.Field>
-                <Button onClick={this.submitTask}>+</Button>
-              </Form.Field>
-            </Form.Group>
-          </Form>
+          <React.Fragment>
+          <Table.Cell>
+            <Form>
+              <Form.Group inline>
+                <Form.Field style={{ marginRight: '0', paddingRight: "0"}}>
+                  <Input
+                    placeholder="Add a new task"
+                    onChange={this.handleChange}
+                    name='task'
+                    value={this.state.task}/>
+                </Form.Field>
+                <Form.Field style={{ paddingLeft: "0"}}>
+                  <Input
+                    label={{basic:true, content: 'min'}}
+                    labelPosition='right'
+                    placeholder="Time"
+                    name='time'
+                    value = {this.state.time}
+                    onChange={this.handleChange}/>
+                </Form.Field>
+              </Form.Group>
+            </Form>
+          </Table.Cell>
+          {habitRender()}
+          <Table.Cell>
+            <Form.Field>
+              <Button onClick={this.submitTask}>+</Button>
+            </Form.Field>
+          </Table.Cell>
+          </React.Fragment>
         )
       }
   }
@@ -72,38 +93,72 @@ class TaskInput extends Component {
       }
   
       addTask(newObject) {
-        this.props.onNewTask(newObject);
+        this.props.onNewTask(this.props.name, newObject);
       }
   
   
     render() {
-  
+      let habitRender = () => {
+        if (this.props.name === 'Habits') {
+          return (
+            <Table.Cell>
+            <Segment style={{width: "10%"}}>item</Segment>
+            </Table.Cell>
+          )
+        }
+      }
+
       return(
-      <Table basic={true} celled collapsing>
+      <Table basic={true} celled collapsing style={{background: "#ebebd3"}}>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>{this.props.name}</Table.HeaderCell>
+            {this.props.name === "Habits" && 
+            <Table.HeaderCell>Item</Table.HeaderCell>
+            }
+            <Table.HeaderCell>Options</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
   
         <Table.Body>
           <Table.Row>
-            <Table.Cell>
-              <TaskInput addTask={this.addTask}></TaskInput>
-            </Table.Cell>
+              <TaskInput addTask={this.addTask} name={this.props.name}></TaskInput>
           </Table.Row>
-          {this.props.tasks.map((task)=>
+          {this.props.list.map((task)=>
         <Table.Row key={task.id}>
+          <Table.Cell style={{padding: '1px'}} color='teal'>
+          <Segment.Group horizontal style={{padding: '1px', background: '#00bcea'}}>
+            <Segment style={{width: '75%'}}>{task.task}</Segment>
+            <Segment>{task.time}</Segment>
+            {/* <Segment style={{width: '5%'}}> */}
+            {/* <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
+              <Dropdown.Menu>
+                <Dropdown.Item>Edit</Dropdown.Item>
+                <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
+              </Dropdown.Menu>
+              </Dropdown> */}
+            {/* </Segment> */}
+          </Segment.Group>
+            {/* <div style={{display: 'flex', alignItems: 'center'}}>
+              <div style={{border: '2px solid #2f3e56', borderRadius: '.5em',padding: '.66em', paddingLeft: '1em', background: '#ee964b', height: '100%', width: '75%', margin: 0}}>{task.task}</div>
+              <div style={{border: '2px solid #2f3e56', background: '#ee964b', borderRadius: '.5em', padding: '.66em', paddingLeft: '1em'}}>{task.time}</div>
+              <span style={{flexGrow: 1}}></span>
+              <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
+              <Dropdown.Menu>
+                <Dropdown.Item>Edit</Dropdown.Item>
+                <Dropdown.Item onClick={() => this.props.onDeleteTask(task.id)}>Delete</Dropdown.Item>
+              </Dropdown.Menu>
+              </Dropdown>
+            </div> */}
+          </Table.Cell>
+          {habitRender()}          
           <Table.Cell>
-            <Label>{task.task}</Label><Label>{task.time}</Label>
-            <Dropdown icon='ellipsis vertical'>
-            <Dropdown.Menu>
-              <Dropdown.Item>Edit</Dropdown.Item>
-              <Dropdown.Item onClick={() => this.props.onDelete(task.id)}>Delete</Dropdown.Item>
-            </Dropdown.Menu>
-            </Dropdown>
-            {/* <Button icon='ellipsis vertical'> */}
-            {/* </Button> */}
+          <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
+              <Dropdown.Menu>
+                <Dropdown.Item>Edit</Dropdown.Item>
+                <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
+              </Dropdown.Menu>
+              </Dropdown>
           </Table.Cell>
         </Table.Row>)}
         </Table.Body>

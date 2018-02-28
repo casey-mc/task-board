@@ -4,7 +4,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-const taskListRouter = require('./routes/taskListRouter');
+const tasksRouter = require('./routes/tasks');
+const habitsRouter = require('./routes/habits');
 const Knex = require('knex');
 const {Model} = require('objection');
 const knexConfig = require('./knexfile');
@@ -33,8 +34,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
-app.use('/taskList',taskListRouter);
+app.use('/user', users);
+app.use('/user/lists/Tasks',tasksRouter);
+app.use('/user/lists/Habits',habitsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

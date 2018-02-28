@@ -1,12 +1,12 @@
 
 exports.up = function(knex, Promise) {
-  return knex.schema
-  .createTable('User', table => {
+  return Promise.all([
+    knex.schema.createTable('User', table => {
       table.increments('id').primary();
       table.string('name');
       table.string('email')
-  })
-  .createTable('Task', table => {
+    }),
+    knex.schema.createTable('Task', table => {
       table.increments('id').primary();
       table
         .integer('user_id')
@@ -15,10 +15,12 @@ exports.up = function(knex, Promise) {
         .inTable('User');
       table.string('task');
       table.integer('time');
-  });
+   })
+  ]);
 };
 exports.down = function(knex, Promise) {
-  return knex.schema
-    .dropTableifExists('User')
-    .dropTableifExists('Task');
+  return Promise.all([
+    knex.schema.dropTableifExists('User'),
+    knex.schema.dropTableifExists('Task')
+  ]);
 };
