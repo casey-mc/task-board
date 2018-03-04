@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import SegmentGroup, { Button, Table, Label, Form, Input, Dropdown, Header, Segment } from 'semantic-ui-react';
+import SegmentGroup, { Button, Table, Label, Form, Input, Dropdown, Header, Segment, Modal, Icon } from 'semantic-ui-react';
+import Inventory from '../Inventory/Inventory.js';
 
 
 class TaskInput extends Component {
@@ -7,11 +8,13 @@ class TaskInput extends Component {
       super(props);
       this.state = {
         task: "",
-        time: ""
+        time: "",
+        item_id: null
         };
   
         this.handleChange = this.handleChange.bind(this);
         this.submitTask = this.submitTask.bind(this);
+        this.addHabit = this.addHabit.bind(this);
       }
   
       handleChange(event) {
@@ -24,16 +27,20 @@ class TaskInput extends Component {
           [name]: value
         });
       }
+
+      addHabit(id) {
+        this.setState({item_id: id});
+      }
   
       submitTask(event) {
         if (this.state.task !== "" && this.state.time > 0) {
             const newObj = Object.assign({},this.state);
-            this.props.addTask(newObj);
-            for (const item in this.state) {
-              this.setState({
-                [item] : ""
-                });
-            };
+            this.props.onNewTask(this.props.name, newObj);
+            this.setState({
+              task: "",
+              time: "",
+              item_id: null
+              });
         } else {
           alert("A Task needs a description and a time");
         }
@@ -44,10 +51,17 @@ class TaskInput extends Component {
           if (this.props.name === "Habits") {
             return (
             <Table.Cell>
-             Item Prompt
+              <Modal trigger={<Button>Choose Item</Button>}>
+                <Modal.Header>Select Item</Modal.Header>
+                <Modal.Content >
+                  <Modal.Description>
+                    <Inventory items={this.props.items} addHabit={this.addHabit}/>
+                    {console.log('creating Inventory from HabitList with items', this.props.items)}
+                  </Modal.Description>
+                </Modal.Content>
+              </Modal>
             </Table.Cell>
           )
-
          }
         }
         return(
@@ -89,23 +103,44 @@ class TaskInput extends Component {
     // The state for the list is the JSON {taskID, taskContent, taskTime} list
     constructor(props){
       super(props);
-      this.addTask = this.addTask.bind(this);
+      this.addHabit = this.addHabit.bind(this);
       }
+
   
-      addTask(newObject) {
-        this.props.onNewTask(this.props.name, newObject);
+      addHabit(item_id) {
+
       }
-  
   
     render() {
-      let habitRender = () => {
-        if (this.props.name === 'Habits') {
-          return (
-            <Table.Cell>
-            <Segment style={{width: "10%"}}>item</Segment>
-            </Table.Cell>
-          )
+      let habitRender = (task) => {
+        if (this.props.name !== 'Habits') {
+          return null;
         }
+        let habitItem = () => {
+          if (task.item_id !== null) {
+            let itemIndex = task.item_id;
+            return <Icon name={this.props.items.find((element) => {
+              return element.id === itemIndex;
+            }).image}/>;
+          } else {
+            return (
+              <Modal trigger={<Button>Choose Item</Button>}>
+              <Modal.Header>Select Item</Modal.Header>
+              <Modal.Content >
+                <Modal.Description>
+                  <Inventory items={this.props.items} addHabit={this.addHabit}/>
+                  {console.log('creating Inventory from HabitList with items', this.props.items)}
+                </Modal.Description>
+              </Modal.Content>
+            </Modal>
+            );
+          }
+        }
+        return (
+          <Table.Cell>
+          {habitItem()}
+          </Table.Cell>
+        )
       }
 
       return(
@@ -122,7 +157,7 @@ class TaskInput extends Component {
   
         <Table.Body>
           <Table.Row>
-              <TaskInput addTask={this.addTask} name={this.props.name}></TaskInput>
+              <TaskInput onNewTask={this.props.onNewTask} name={this.props.name} items={"items" in this.props && this.props.items}></TaskInput>
           </Table.Row>
           {this.props.list.map((task)=>
         <Table.Row key={task.id}>
@@ -130,28 +165,11 @@ class TaskInput extends Component {
           <Segment.Group horizontal style={{padding: '1px', background: '#00bcea'}}>
             <Segment style={{width: '75%'}}>{task.task}</Segment>
             <Segment>{task.time}</Segment>
-            {/* <Segment style={{width: '5%'}}> */}
-            {/* <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
-              <Dropdown.Menu>
-                <Dropdown.Item>Edit</Dropdown.Item>
-                <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
-              </Dropdown.Menu>
-              </Dropdown> */}
-            {/* </Segment> */}
+
           </Segment.Group>
-            {/* <div style={{display: 'flex', alignItems: 'center'}}>
-              <div style={{border: '2px solid #2f3e56', borderRadius: '.5em',padding: '.66em', paddingLeft: '1em', background: '#ee964b', height: '100%', width: '75%', margin: 0}}>{task.task}</div>
-              <div style={{border: '2px solid #2f3e56', background: '#ee964b', borderRadius: '.5em', padding: '.66em', paddingLeft: '1em'}}>{task.time}</div>
-              <span style={{flexGrow: 1}}></span>
-              <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
-              <Dropdown.Menu>
-                <Dropdown.Item>Edit</Dropdown.Item>
-                <Dropdown.Item onClick={() => this.props.onDeleteTask(task.id)}>Delete</Dropdown.Item>
-              </Dropdown.Menu>
-              </Dropdown>
-            </div> */}
+
           </Table.Cell>
-          {habitRender()}          
+          {habitRender(task)}
           <Table.Cell>
           <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
               <Dropdown.Menu>
@@ -168,3 +186,24 @@ class TaskInput extends Component {
   }
 
 export default TaskList;
+
+            // {/* <div style={{display: 'flex', alignItems: 'center'}}>
+            //   <div style={{border: '2px solid #2f3e56', borderRadius: '.5em',padding: '.66em', paddingLeft: '1em', background: '#ee964b', height: '100%', width: '75%', margin: 0}}>{task.task}</div>
+            //   <div style={{border: '2px solid #2f3e56', background: '#ee964b', borderRadius: '.5em', padding: '.66em', paddingLeft: '1em'}}>{task.time}</div>
+            //   <span style={{flexGrow: 1}}></span>
+            //   <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
+            //   <Dropdown.Menu>
+            //     <Dropdown.Item>Edit</Dropdown.Item>
+            //     <Dropdown.Item onClick={() => this.props.onDeleteTask(task.id)}>Delete</Dropdown.Item>
+            //   </Dropdown.Menu>
+            //   </Dropdown>
+            // </div> */}
+
+            //             {/* <Segment style={{width: '5%'}}> */}
+            // {/* <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
+            //   <Dropdown.Menu>
+            //     <Dropdown.Item>Edit</Dropdown.Item>
+            //     <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
+            //   </Dropdown.Menu>
+            //   </Dropdown> */}
+            // {/* </Segment> */

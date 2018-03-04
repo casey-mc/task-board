@@ -1,6 +1,6 @@
 const Model = require('objection').Model;
 
-class Task extends Model {
+class Item extends Model {
 
     static get tableName() {
         return 'Item';
@@ -16,7 +16,7 @@ class Task extends Model {
             user_id: {type: 'integer'},
             name: {type: 'string', minLength: 1, maxLength: 255 },
             description: {type: 'string', minLength: 1, maxLength: 255 },
-            image: {type: 'string', minLength: 1, maxLength: 255},
+            image: {type: 'string', minLength: 1, maxLength: 255}, // For now this is just the corresponding Semantic Icon prop "name"
             stats: {type: 'object'},
           }
         }
@@ -30,12 +30,12 @@ class Task extends Model {
                 modelClass: require('./User'),
                 join: {
                     from: 'Item.user_id',
-                    to: 'Item.id'
+                    to: 'User.id'
                 }
             },
             habit: {
                 relation: Model.BelongsToOneRelation,
-                modelClass: require('./Item'),
+                modelClass: require('./Habit'),
                 join: {
                     from: 'Item.id',
                     to: 'Habit.item_id'
@@ -45,4 +45,4 @@ class Task extends Model {
     }
 }
 
-module.exports = Task;
+module.exports = Item;

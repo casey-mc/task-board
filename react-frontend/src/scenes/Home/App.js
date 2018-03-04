@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 // import './App.css';
-import { Grid, Menu} from 'semantic-ui-react';
+import { Grid, Menu, Header, Segment} from 'semantic-ui-react';
 import TaskList from './scenes/TaskList/TaskList.js';
 import GameBoard from './scenes/GameBoard/GameBoard.js';
-import TaskApi from '../../services/API/TaskApi.js';
+import Inventory from './scenes/Inventory/Inventory.js';
+// import TaskApi from '../../services/API/TaskApi.js';
 import axios from 'axios';
 
 function NavBar(props) {
@@ -23,6 +24,7 @@ class App extends Component {
       tasks : [],
       habits : [],
       supers : [],
+      items: [],
       currentTask: null,
       previousTasks: [],
       completedTasks: [],
@@ -37,15 +39,21 @@ class App extends Component {
 
   componentDidMount() {
     axios.get('user/lists/Tasks/')
-    .then((res) => {
-      console.log("Obtained data from server",res.data);
-      this.setState({tasks : res.data});
-    })
-    .catch((err) => console.log(err));
+      .then((res) => {
+        console.log("Obtained data from server",res.data);
+        this.setState({tasks : res.data});
+      })
+      .catch((err) => console.log(err));
     axios.get('user/lists/Habits/')
+      .then((res) => {
+        console.log("Obtained data from server",res.data);
+        this.setState({habits : res.data});
+      })
+      .catch((err) => console.log(err));
+    axios.get('user/Items/')
     .then((res) => {
       console.log("Obtained data from server",res.data);
-      this.setState({habits : res.data});
+      this.setState({items : res.data});
     })
     .catch((err) => console.log(err));
   }
@@ -142,6 +150,7 @@ class App extends Component {
     return (
       <div>
         <NavBar></NavBar>
+        <Inventory items={this.state.items}/>
         <GameBoard tasks={this.state.tasks} getTask={this.getNewTask} currentTask={this.state.currentTask} completedTask={this.completedTask}></GameBoard>
         <Grid columns='equal' stackable={true}>
           <Grid.Row>
@@ -149,7 +158,7 @@ class App extends Component {
               <TaskList name="Tasks" list={this.state.tasks}  onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Habits" list={this.state.habits} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Habits" items={this.state.items} list={this.state.habits} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
             </Grid.Column>
             <Grid.Column>
               <TaskList name="Supers" list={this.state.supers} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>

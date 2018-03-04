@@ -1,6 +1,6 @@
 const Model = require('objection').Model;
 
-class Task extends Model {
+class Habit extends Model {
 
     static get tableName() {
         return 'Habit';
@@ -44,4 +44,4 @@ class Task extends Model {
     }
 }
 
-module.exports = Task;
+module.exports = Habit;

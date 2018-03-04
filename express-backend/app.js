@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 const tasksRouter = require('./routes/tasks');
 const habitsRouter = require('./routes/habits');
+const itemsRouter = require('./routes/items');
 const Knex = require('knex');
 const {Model} = require('objection');
 const knexConfig = require('./knexfile');
@@ -37,6 +38,7 @@ app.use('/', index);
 app.use('/user', users);
 app.use('/user/lists/Tasks',tasksRouter);
 app.use('/user/lists/Habits',habitsRouter);
+app.use('/user/Items',itemsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
