@@ -103,12 +103,20 @@ class TaskInput extends Component {
     // The state for the list is the JSON {taskID, taskContent, taskTime} list
     constructor(props){
       super(props);
-      this.addHabit = this.addHabit.bind(this);
+      this.state = {
+        selectedTask: null
+      }
+      this.editHabit = this.editHabit.bind(this);
+      this.editTask = this.editTask.bind(this);
       }
 
-  
-      addHabit(item_id) {
+      editHabit(item_id) {
 
+        this.props.onEditTask(this.props.name, )
+      }
+
+      editTask(index) {
+        this.setState({selectedTask: index})
       }
   
     render() {
@@ -126,9 +134,9 @@ class TaskInput extends Component {
             return (
               <Modal trigger={<Button>Choose Item</Button>}>
               <Modal.Header>Select Item</Modal.Header>
-              <Modal.Content >
+              <Modal.Content>
                 <Modal.Description>
-                  <Inventory items={this.props.items} addHabit={this.addHabit}/>
+                  <Inventory items={this.props.items} addHabit={this.editHabit}/>
                   {console.log('creating Inventory from HabitList with items', this.props.items)}
                 </Modal.Description>
               </Modal.Content>
@@ -159,21 +167,27 @@ class TaskInput extends Component {
           <Table.Row>
               <TaskInput onNewTask={this.props.onNewTask} name={this.props.name} items={"items" in this.props && this.props.items}></TaskInput>
           </Table.Row>
-          {this.props.list.map((task)=>
+          {this.props.list.map((task, index)=>
         <Table.Row key={task.id}>
-          <Table.Cell style={{padding: '1px'}} color='teal'>
-          <Segment.Group horizontal style={{padding: '1px', background: '#00bcea'}}>
-            <Segment style={{width: '75%'}}>{task.task}</Segment>
-            <Segment>{task.time}</Segment>
-
-          </Segment.Group>
-
+          
+            {index === this.state.selectedTask
+            ?
+            <TaskInput></TaskInput>
+            :
+            <Table.Cell style={{padding: '1px'}} color='teal'>
+            <Segment.Group horizontal style={{padding: '1px', background: '#00bcea'}}>
+              <Segment style={{width: '75%'}}>{task.task}</Segment>
+              <Segment>{task.time}</Segment>
+           </Segment.Group>
           </Table.Cell>
+           
+            }
+
           {habitRender(task)}
           <Table.Cell>
           <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
               <Dropdown.Menu>
-                <Dropdown.Item>Edit</Dropdown.Item>
+                <Dropdown.Item onClick={() => this.editTask(index)}>Edit</Dropdown.Item>
                 <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
               </Dropdown.Menu>
               </Dropdown>

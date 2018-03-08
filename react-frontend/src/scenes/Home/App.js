@@ -32,6 +32,7 @@ class App extends Component {
     };
 
     this.handleNewListItem = this.handleNewListItem.bind(this);
+    this.handleEditListItem = this.handleEditListItem.bind(this);
     this.getNewTask = this.getNewTask.bind(this);
     this.completedTask = this.completedTask.bind(this);
     this.handleDeleteListItem = this.handleDeleteListItem.bind(this);
@@ -82,6 +83,20 @@ class App extends Component {
       });
   }
 
+  handleEditListItem(listName, taskID, newObj) {
+    if (listName  === "Tasks") {
+      axios.patch("/user/lists/${listName}", newObj)
+      .then((ret) => console.log(ret))
+      .catch((err) => console.log(err));
+      let newArray = this.state.tasks.slice();
+      let index = newArray.findIndex((element) => {
+        return element.id === taskID;
+      });
+      newArray[index] = newObj;
+      this.setState({tasks: newArray});
+    }
+  }
+
   handleDeleteListItem(listName, taskID) {
     // Check if taskID is a valid item in this.state.tasks
     // Create new array without that index, setState
@@ -120,7 +135,7 @@ class App extends Component {
   }
 
   getNewTask() {
-    if (this.state.tasks.length > 0){
+    if (this.state.tasks.length > 0) {
       // We want to return a random task, but not the same few tasks in a row
       var cutArray = this.state.tasks.slice();
       this.state.previousTasks.forEach((item, index) => {
@@ -155,13 +170,13 @@ class App extends Component {
         <Grid columns='equal' stackable={true}>
           <Grid.Row>
             <Grid.Column>
-              <TaskList name="Tasks" list={this.state.tasks}  onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Tasks" list={this.state.tasks}  onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem} onEditTask={this.handleEditListItem}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Habits" items={this.state.items} list={this.state.habits} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Habits" list={this.state.habits} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem} onEditTask={this.handleEditListItem} items={this.state.items}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Supers" list={this.state.supers} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem}></TaskList>
+              <TaskList name="Supers" list={this.state.supers} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem} onEditTask={this.handleEditListItem}></TaskList>
             </Grid.Column>
           </Grid.Row>
       </Grid>
