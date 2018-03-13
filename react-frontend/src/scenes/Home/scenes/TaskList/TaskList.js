@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import SegmentGroup, { Button, Table, Label, Form, Input, Dropdown, Header, Segment, Modal, Icon } from 'semantic-ui-react';
 import Inventory from '../Inventory/Inventory.js';
+import {observer} from 'mobx-react';
+import userStore from '../../../../services/mobX/userStore.js';
+
 
 
 class TaskInput extends Component {
@@ -34,8 +37,9 @@ class TaskInput extends Component {
   
       submitTask(event) {
         if (this.state.task !== "" && this.state.time > 0) {
-            const newObj = Object.assign({},this.state);
-            this.props.onNewTask(this.props.name, newObj);
+          userStore.addItem(this.props.list.list, this.state);
+            // const newObj = Object.assign({},this.state);
+            // this.props.onNewTask(this.props.name, newObj);
             this.setState({
               task: "",
               time: "",
@@ -99,6 +103,7 @@ class TaskInput extends Component {
       }
   }
   
+  @observer
   class TaskList extends Component {
     // The state for the list is the JSON {taskID, taskContent, taskTime} list
     constructor(props){
@@ -111,7 +116,6 @@ class TaskInput extends Component {
       }
 
       editHabit(item_id) {
-
         this.props.onEditTask(this.props.name, )
       }
 
@@ -165,10 +169,10 @@ class TaskInput extends Component {
   
         <Table.Body>
           <Table.Row>
-              <TaskInput onNewTask={this.props.onNewTask} name={this.props.name} items={"items" in this.props && this.props.items}></TaskInput>
+              <TaskInput list={this.props.list} name={this.props.name} items={"items" in this.props && this.props.items}></TaskInput>
           </Table.Row>
-          {this.props.list.map((task, index)=>
-        <Table.Row key={task.id}>
+          {this.props.list.list.map((task, index)=>
+            <Table.Row key={task.id}>
           
             {index === this.state.selectedTask
             ?
@@ -188,7 +192,7 @@ class TaskInput extends Component {
           <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
               <Dropdown.Menu>
                 <Dropdown.Item onClick={() => this.editTask(index)}>Edit</Dropdown.Item>
-                <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
+                <Dropdown.Item onClick={() => this.props.list.deleteItem(task.id)}>Delete</Dropdown.Item>
               </Dropdown.Menu>
               </Dropdown>
           </Table.Cell>
@@ -200,24 +204,3 @@ class TaskInput extends Component {
   }
 
 export default TaskList;
-
-            // {/* <div style={{display: 'flex', alignItems: 'center'}}>
-            //   <div style={{border: '2px solid #2f3e56', borderRadius: '.5em',padding: '.66em', paddingLeft: '1em', background: '#ee964b', height: '100%', width: '75%', margin: 0}}>{task.task}</div>
-            //   <div style={{border: '2px solid #2f3e56', background: '#ee964b', borderRadius: '.5em', padding: '.66em', paddingLeft: '1em'}}>{task.time}</div>
-            //   <span style={{flexGrow: 1}}></span>
-            //   <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
-            //   <Dropdown.Menu>
-            //     <Dropdown.Item>Edit</Dropdown.Item>
-            //     <Dropdown.Item onClick={() => this.props.onDeleteTask(task.id)}>Delete</Dropdown.Item>
-            //   </Dropdown.Menu>
-            //   </Dropdown>
-            // </div> */}
-
-            //             {/* <Segment style={{width: '5%'}}> */}
-            // {/* <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
-            //   <Dropdown.Menu>
-            //     <Dropdown.Item>Edit</Dropdown.Item>
-            //     <Dropdown.Item onClick={() => this.props.onDeleteTask(this.props.name, task.id)}>Delete</Dropdown.Item>
-            //   </Dropdown.Menu>
-            //   </Dropdown> */}
-            // {/* </Segment> */

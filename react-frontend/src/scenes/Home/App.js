@@ -6,6 +6,8 @@ import GameBoard from './scenes/GameBoard/GameBoard.js';
 import Inventory from './scenes/Inventory/Inventory.js';
 // import TaskApi from '../../services/API/TaskApi.js';
 import axios from 'axios';
+import {observer} from 'mobx-react';
+import userStore from '../../services/mobX/userStore.js';
 
 function NavBar(props) {
   return (
@@ -17,12 +19,11 @@ function NavBar(props) {
   )
 }
 
+@observer
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tasks : [],
-      habits : [],
       supers : [],
       items: [],
       currentTask: null,
@@ -31,56 +32,18 @@ class App extends Component {
       gold: 0
     };
 
-    this.handleNewListItem = this.handleNewListItem.bind(this);
     this.handleEditListItem = this.handleEditListItem.bind(this);
     this.getNewTask = this.getNewTask.bind(this);
     this.completedTask = this.completedTask.bind(this);
-    this.handleDeleteListItem = this.handleDeleteListItem.bind(this);
   }
 
   componentDidMount() {
-    axios.get('user/lists/Tasks/')
-      .then((res) => {
-        console.log("Obtained data from server",res.data);
-        this.setState({tasks : res.data});
-      })
-      .catch((err) => console.log(err));
-    axios.get('user/lists/Habits/')
-      .then((res) => {
-        console.log("Obtained data from server",res.data);
-        this.setState({habits : res.data});
-      })
-      .catch((err) => console.log(err));
     axios.get('user/Items/')
     .then((res) => {
       console.log("Obtained data from server",res.data);
       this.setState({items : res.data});
     })
     .catch((err) => console.log(err));
-  }
-
-  // TODO: Post new info to DB, check if task is duplicate
-  handleNewListItem(listName, newTask) {
-    axios.post(`/user/lists/${listName}`, {
-        task: newTask.task,
-        time: newTask.time
-      })
-      .then((res) => {
-        console.log("Successfully added ", newTask);
-        newTask.id = res.data.id;
-        if (listName === "Tasks") {
-          const newList = this.state.tasks.slice();
-          newList.push(newTask);
-          this.setState({tasks: newList});
-        } else if ( listName === "Habits") {
-          const newList = this.state.habits.slice();
-          newList.push(newTask);
-          this.setState({habits: newList});
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   }
 
   handleEditListItem(listName, taskID, newObj) {
@@ -97,34 +60,6 @@ class App extends Component {
     }
   }
 
-  handleDeleteListItem(listName, taskID) {
-    // Check if taskID is a valid item in this.state.tasks
-    // Create new array without that index, setState
-    // Call API delete
-    let delIndex = undefined;
-    let newArray = [];
-    for (let i = 0; i < this.state.tasks.length; i++){
-      if (taskID === this.state.tasks[i].id) {
-        delIndex = i;
-        break;
-      }
-    }
-    if (delIndex !== undefined) {
-      newArray = this.state.tasks.slice();
-      newArray.splice(delIndex, 1);
-      this.setState({tasks: newArray});
-      // Call delete on API
-      axios.delete(`/user/lists/${listName}`, {
-        params : {
-          id : taskID
-        }
-      })
-      .then((resp) => console.log(resp))
-      .catch((err) => console.log(err));
-    } else {
-      console.log("Invalid task ID");
-    }
-  }
 
   completedTask(task, elapsed) {
     console.log("Worked on task", task, "for ", elapsed, "seconds");
@@ -166,17 +101,17 @@ class App extends Component {
       <div>
         <NavBar></NavBar>
         <Inventory items={this.state.items}/>
-        <GameBoard tasks={this.state.tasks} getTask={this.getNewTask} currentTask={this.state.currentTask} completedTask={this.completedTask}></GameBoard>
+        <GameBoard tasks={userStore.Tasks} getTask={this.getNewTask} currentTask={this.state.currentTask} completedTask={this.completedTask}></GameBoard>
         <Grid columns='equal' stackable={true}>
           <Grid.Row>
             <Grid.Column>
-              <TaskList name="Tasks" list={this.state.tasks}  onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem} onEditTask={this.handleEditListItem}></TaskList>
+              <TaskList name="Tasks" list={userStore.Tasks}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Habits" list={this.state.habits} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem} onEditTask={this.handleEditListItem} items={this.state.items}></TaskList>
+              <TaskList name="Habits" list={userStore.Habits} items={this.state.items}></TaskList>
             </Grid.Column>
             <Grid.Column>
-              <TaskList name="Supers" list={this.state.supers} onNewTask={this.handleNewListItem} onDeleteTask={this.handleDeleteListItem} onEditTask={this.handleEditListItem}></TaskList>
+              <TaskList name="Supers" list={userStore.Tasks}></TaskList>
             </Grid.Column>
           </Grid.Row>
       </Grid>

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Container, Grid, Header, Segment, Label, Popup, Icon, Modal} from 'semantic-ui-react';
-
+import userStore from '../../../../services/mobX/userStore.js';
 
 
 class GameSquare extends Component {
@@ -188,7 +188,7 @@ class GameSquare extends Component {
           key={index}
           cursor={this.state.position === index ? true : false}
           type={square["type"]}
-          task={this.props.tasks.length > 0 ? this.props.tasks[0] : []}
+          task={this.props.tasks.list.length > 0 ? this.props.tasks.list[0] : []}
         />
       ));
       return retList;
