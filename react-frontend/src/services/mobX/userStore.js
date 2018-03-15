@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable, action, computed} from 'mobx';
 import axios from 'axios';
 
 export class userStore {
@@ -10,10 +10,22 @@ export class userStore {
 
 class Tasks {
   @observable list = [];
+  @observable currentTask = {};
+  @observable completedTasks = [];
 
   constructor() {
     this.loadItems();
-    this.completedTasks = [];
+  }
+
+  newCurrentTask() {
+    this.currentTask = this.list[Math.floor(Math.random() * this.list.length)]
+  }
+
+  @action
+  completedTask(elapsed) {
+    let id = this.currentTask.id;
+    this.completedTasks.push({id : elapsed});
+    console.log(`Completed Tasks: ${this.completedTasks}`);
   }
 
   @action

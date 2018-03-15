@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import SegmentGroup, { Button, Table, Label, Form, Input, Dropdown, Header, Segment, Modal, Icon } from 'semantic-ui-react';
 import Inventory from '../Inventory/Inventory.js';
 import {observer} from 'mobx-react';
-import userStore from '../../../../services/mobX/userStore.js';
+// import userStore from '../../../../services/mobX/userStore.js';
 
 
 
@@ -37,9 +37,7 @@ class TaskInput extends Component {
   
       submitTask(event) {
         if (this.state.task !== "" && this.state.time > 0) {
-          userStore.addItem(this.props.list.list, this.state);
-            // const newObj = Object.assign({},this.state);
-            // this.props.onNewTask(this.props.name, newObj);
+          this.props.list.addItem(this.state);
             this.setState({
               task: "",
               time: "",
@@ -51,23 +49,6 @@ class TaskInput extends Component {
       }
   
       render() {
-        let habitRender = () => {
-          if (this.props.name === "Habits") {
-            return (
-            <Table.Cell>
-              <Modal trigger={<Button>Choose Item</Button>}>
-                <Modal.Header>Select Item</Modal.Header>
-                <Modal.Content >
-                  <Modal.Description>
-                    <Inventory items={this.props.items} addHabit={this.addHabit}/>
-                    {console.log('creating Inventory from HabitList with items', this.props.items)}
-                  </Modal.Description>
-                </Modal.Content>
-              </Modal>
-            </Table.Cell>
-          )
-         }
-        }
         return(
           <React.Fragment>
           <Table.Cell>
@@ -92,7 +73,6 @@ class TaskInput extends Component {
               </Form.Group>
             </Form>
           </Table.Cell>
-          {habitRender()}
           <Table.Cell>
             <Form.Field>
               <Button onClick={this.submitTask}>+</Button>
@@ -104,72 +84,29 @@ class TaskInput extends Component {
   }
   
   @observer
-  class TaskList extends Component {
+  class TaskTable extends Component {
     // The state for the list is the JSON {taskID, taskContent, taskTime} list
     constructor(props){
       super(props);
       this.state = {
         selectedTask: null
       }
-      this.editHabit = this.editHabit.bind(this);
-      this.editTask = this.editTask.bind(this);
-      }
-
-      editHabit(item_id) {
-        this.props.onEditTask(this.props.name, )
-      }
-
-      editTask(index) {
-        this.setState({selectedTask: index})
       }
   
     render() {
-      let habitRender = (task) => {
-        if (this.props.name !== 'Habits') {
-          return null;
-        }
-        let habitItem = () => {
-          if (task.item_id !== null) {
-            let itemIndex = task.item_id;
-            return <Icon name={this.props.items.find((element) => {
-              return element.id === itemIndex;
-            }).image}/>;
-          } else {
-            return (
-              <Modal trigger={<Button>Choose Item</Button>}>
-              <Modal.Header>Select Item</Modal.Header>
-              <Modal.Content>
-                <Modal.Description>
-                  <Inventory items={this.props.items} addHabit={this.editHabit}/>
-                  {console.log('creating Inventory from HabitList with items', this.props.items)}
-                </Modal.Description>
-              </Modal.Content>
-            </Modal>
-            );
-          }
-        }
-        return (
-          <Table.Cell>
-          {habitItem()}
-          </Table.Cell>
-        )
-      }
 
       return(
       <Table basic={true} celled collapsing style={{background: "#ebebd3"}}>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>{this.props.name}</Table.HeaderCell>
-            {this.props.name === "Habits" && 
-            <Table.HeaderCell>Item</Table.HeaderCell>
-            }
+            <Table.HeaderCell>Tasks</Table.HeaderCell>
             <Table.HeaderCell>Options</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
   
         <Table.Body>
           <Table.Row>
-              <TaskInput list={this.props.list} name={this.props.name} items={"items" in this.props && this.props.items}></TaskInput>
+              <TaskInput list={this.props.list} items={"items" in this.props && this.props.items}></TaskInput>
           </Table.Row>
           {this.props.list.list.map((task, index)=>
             <Table.Row key={task.id}>
@@ -187,7 +124,6 @@ class TaskInput extends Component {
            
             }
 
-          {habitRender(task)}
           <Table.Cell>
           <Dropdown icon='ellipsis vertical' style={{flexGrow: 0}}>
               <Dropdown.Menu>
@@ -203,4 +139,4 @@ class TaskInput extends Component {
     }
   }
 
-export default TaskList;
+export default TaskTable;

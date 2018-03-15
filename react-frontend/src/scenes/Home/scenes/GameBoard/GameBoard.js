@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Button, Container, Grid, Header, Segment, Label, Popup, Icon, Modal} from 'semantic-ui-react';
-import userStore from '../../../../services/mobX/userStore.js';
+import {observer, inject} from 'mobx-react';
+// import userStore from '../../../../services/mobX/userStore.js';
 
-
+@observer
 class GameSquare extends Component {
     render() {
       const squareDisplay = (
@@ -23,7 +24,9 @@ class GameSquare extends Component {
       )
     }
   }
-  
+
+  @inject('list')
+  @observer
   class TaskModal extends Component {
     constructor(props) {
       super(props);
@@ -42,7 +45,7 @@ class GameSquare extends Component {
       if (this.props.elapsed < this.props.currentTask.time) {
         this.setState({showAlert: true});
       } else {
-        this.props.completedTask(this.props.currentTask, this.props.elapsed);
+        this.props.list.completedTask(this.props.elapsed);
         this.handleClose();
       }
     }
@@ -67,6 +70,7 @@ class GameSquare extends Component {
       });
     }
     render () {
+      let currentTask = this.props.list.currentTask;
       
       // TODO: Fix timer.elapsed comparison issues because timer.elapsed is now in milliseconds
       return (
@@ -78,16 +82,16 @@ class GameSquare extends Component {
         <Modal.Header>Get Started!</Modal.Header>
         <Modal.Content>
           <Modal.Description>
-            <Header>{this.props.currentTask.task}</Header>
+            <Header>{currentTask.task}</Header>
             <p>
               <span
                 style={
-                  this.props.timer !== 0 && (this.props.elapsed > this.props.currentTask.time)
+                  this.props.timer !== 0 && (this.props.elapsed > currentTask.time)
                     ? { backgroundColor: "#80ced6" }
                     : {}
                 }>
                 {this.props.timer !== 0
-                  ? (this.props.currentTask.time - this.props.elapsed)
+                  ? (currentTask.time - this.props.elapsed)
                   : null
                   }
               </span>
@@ -108,12 +112,14 @@ class GameSquare extends Component {
       );
     }
   }
-  
+
+  @inject('list')
+  @observer
   class GameBoard extends Component {
     constructor(props) {
       super(props);
       // Need some placeholder data for our gameboard.
-      // Later, we'll call the REST API for this data
+      // Later, we'll call the API for this data
       var board = [];
       for (var i = 0; i < 22; i++) {
         var squareType = "";
@@ -144,7 +150,7 @@ class GameSquare extends Component {
   
     rollDice() {
       this.setState(prevState => ({ position: prevState.position + 1 }));
-      this.getNewTask();
+      this.props.list.newCurrentTask();
     }
   
     countDown() {
@@ -188,17 +194,17 @@ class GameSquare extends Component {
           key={index}
           cursor={this.state.position === index ? true : false}
           type={square["type"]}
-          task={this.props.tasks.list.length > 0 ? this.props.tasks.list[0] : []}
+          // TODO: This code is probably unnecessary (it's also bugged)
+          task={this.props.list.list.length > 0 ? this.props.list.list[0] : []}
         />
       ));
       return retList;
     }
   
-    getNewTask() {
-      this.props.getTask();
-    }
   
     render() {
+
+      let currentTask = this.props.list.currentTask;
   
       return (
         <Segment>
@@ -208,20 +214,19 @@ class GameSquare extends Component {
               <Container>
                 {(() => {
                   if (this.state.gameArray[this.state.position].type === "task") {
-                    if (this.props.currentTask !== null) {
+                    if (currentTask !== null && currentTask !== undefined) {
                       return (
                         <Segment>
                           <Header>Get Started!</Header>
-                          {this.props.currentTask.task}
+                          {currentTask.task}
                           <br />
-                          {this.props.currentTask.time} minutes
+                          {currentTask.time} minutes
                           <br />
                           <TaskModal
                           stopTimer={this.stopTimer}
                           startTimer={this.startTimer}
                           timer={this.state.timer.timer}
                           elapsed={this.state.timer.elapsed}
-                          currentTask={this.props.currentTask}
                           completedTask={this.props.completedTask}
                           // startButton={}
                           />
