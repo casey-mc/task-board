@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import './App.css';
 import { Grid, Menu } from 'semantic-ui-react';
 import HabitTable from './scenes/Tables/HabitTable.js';
-import TaskTable from './scenes/Tables/TaskTable.js';
+import TaskTableContainer from './scenes/Tables/TaskTableContainer.js';
 import GameBoard from './scenes/GameBoard/GameBoard.js';
 import Inventory from './scenes/Inventory/Inventory.js';
 // import TaskApi from '../../services/API/TaskApi.js';
@@ -39,7 +39,7 @@ class App extends Component {
   componentDidMount() {
     axios.get('user/Items/')
     .then((res) => {
-      console.log("Obtained data from server",res.data);
+      console.log("Obtained inventory from server",res.data);
       this.setState({items : res.data});
     })
     .catch((err) => console.log(err));
@@ -47,7 +47,7 @@ class App extends Component {
 
   handleEditListItem(listName, taskID, newObj) {
     if (listName  === "Tasks") {
-      axios.patch("/user/lists/${listName}", newObj)
+      axios.patch("/user/lists/listName", newObj)
       .then((ret) => console.log(ret))
       .catch((err) => console.log(err));
       let newArray = this.state.tasks.slice();
@@ -71,10 +71,13 @@ class App extends Component {
         <Grid columns='equal' stackable={true}>
           <Grid.Row>
             <Grid.Column>
-              <TaskTable name="Tasks" list={userStore.Tasks}></TaskTable>
+            <Provider list={userStore.Tasks}>
+              <TaskTableContainer/>
+            </Provider>
             </Grid.Column>
+
             <Grid.Column>
-              <HabitTable name="Habits" list={userStore.Habits} items={this.state.items}></HabitTable>
+              <HabitTable list={userStore.Habits} items={this.state.items}></HabitTable>
             </Grid.Column>
             <Grid.Column>
               {/* <TaskList name="Supers" list={userStore.Tasks}></TaskList> */}

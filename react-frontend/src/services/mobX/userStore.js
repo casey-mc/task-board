@@ -32,8 +32,8 @@ class Tasks {
   loadItems() {
     axios.get('user/lists/tasks/')
     .then(action("loadSuccess", (res) => {
-      console.log("Obtained data from server",res.data);
-      this.list = res.data;
+      console.log("Obtained tasks from server",res.data);
+      this.list.replace(res.data);
     }))
     .catch((err) => console.log(err));
   }
@@ -84,7 +84,7 @@ class Habits {
   loadItems() {
     axios.get('user/lists/habits/')
     .then(action("loadSuccess", (res) => {
-      console.log("Obtained data from server",res.data);
+      console.log("Obtained habits from server",res.data);
       this.list = res.data;
     }))
     .catch((err) => console.log(err));
