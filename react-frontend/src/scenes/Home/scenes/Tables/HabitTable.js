@@ -10,10 +10,10 @@ import {
   Icon
 } from "semantic-ui-react";
 import Inventory from "../Inventory/Inventory.js";
-import { observer } from "mobx-react";
+import { observer, inject } from "mobx-react";
 // import userStore from '../../../../services/mobX/userStore.js';
 
-class TaskInput extends Component {
+class HabitInput extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -103,7 +103,17 @@ class TaskInput extends Component {
   }
 }
 
+@inject("items", "list")
+@observer
 class TableRow extends Component {
+  constructor(props) {
+    super(props);
+    this.associateItem = this.associateItem.bind(this)
+  }
+
+  associateItem(item) {
+    this.props.list.associateItem(this.props.id, item)
+  }
   render() {
     let itemButton = <Button>Choose Item</Button>;
     if (this.props.icon !== "") {
@@ -112,7 +122,7 @@ class TableRow extends Component {
     return (
       <Table.Row>
         {/* {index === this.state.selectedTask ? (
-          <TaskInput />
+          <HabitInput />
         ) : (
           <Table.Cell style={{ padding: "1px" }} color="teal">
             <Segment.Group
@@ -138,7 +148,7 @@ class TableRow extends Component {
                 <Modal.Description>
                   <Inventory
                     items={this.props.items}
-                    addHabit={this.editHabit}
+                    selected={this.associateItem}
                   />
                 </Modal.Description>
               </Modal.Content>
@@ -171,9 +181,9 @@ class TableRow extends Component {
   }
 }
 
+@inject("list", "items")
 @observer
 class HabitTable extends Component {
-  // The state for the list is the JSON {taskID, taskContent, taskTime} list
   constructor(props) {
     super(props);
     this.state = {
@@ -194,13 +204,13 @@ class HabitTable extends Component {
 
         {/* Body */}
         <Table.Body>
-          <TaskInput
+          <HabitInput
             list={this.props.list}
             items={"items" in this.props && this.props.items}
           />
 
           {this.props.list.list.map((habit, index) => {
-            let icon = this.props.items.find(element => {
+            let icon = this.props.items.list.find(element => {
                 return element.id === habit.id;
               })
             if (icon === undefined) {
@@ -208,7 +218,7 @@ class HabitTable extends Component {
             } else {
               icon = icon.image;
             }
-            return <TableRow key={habit.id} description={habit.task} time={habit.time} icon={icon}/>;
+            return <TableRow key={habit.id} id={habit.id} description={habit.task} time={habit.time} icon={icon}/>;
           })}
         </Table.Body>
       </Table>

@@ -16,13 +16,13 @@ taskListRouter.route('/')
   let items = await Item.query();
   res.json(items);
   console.log("sending", items);
-  // res.end('Will send all the habits to you!');
+  // res.end('Will send all the items to you!');
 })
 .post(async (req,res,next) => {
   console.log(req.body);
   try {
     let item = await Item.query()
-     .insert({task: req.body.task, time: req.body.time});
+     .insert({name: req.body.name});
     res.json({id: item.id});
     console.log(item);
   } catch(err) {

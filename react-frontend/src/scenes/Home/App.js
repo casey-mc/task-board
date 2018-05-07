@@ -36,18 +36,10 @@ class App extends Component {
     this.handleEditListItem = this.handleEditListItem.bind(this);
   }
 
-  componentDidMount() {
-    axios.get('user/Items/')
-    .then((res) => {
-      console.log("Obtained inventory from server",res.data);
-      this.setState({items : res.data});
-    })
-    .catch((err) => console.log(err));
-  }
 
   handleEditListItem(listName, taskID, newObj) {
     if (listName  === "Tasks") {
-      axios.patch("/user/lists/listName", newObj)
+      axios.patch("/lists/listName", newObj)
       .then((ret) => console.log(ret))
       .catch((err) => console.log(err));
       let newArray = this.state.tasks.slice();
@@ -64,9 +56,11 @@ class App extends Component {
     return (
       <div>
         <NavBar></NavBar>
-        <Inventory items={this.state.items}/>
+        <Provider items={userStore.Inventory}>
+          <Inventory/>
+        </Provider>
         <Provider list={userStore.Tasks}>
-        <GameBoard></GameBoard>
+          <GameBoard/>
         </Provider>
         <Grid columns='equal' stackable={true}>
           <Grid.Row>
@@ -77,7 +71,9 @@ class App extends Component {
             </Grid.Column>
 
             <Grid.Column>
-              <HabitTable list={userStore.Habits} items={this.state.items}></HabitTable>
+              <Provider list={userStore.Habits} items={userStore.Inventory}>
+                <HabitTable/>
+              </Provider>
             </Grid.Column>
             <Grid.Column>
               {/* <TaskList name="Supers" list={userStore.Tasks}></TaskList> */}

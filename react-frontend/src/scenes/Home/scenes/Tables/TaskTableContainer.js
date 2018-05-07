@@ -22,7 +22,6 @@ import {TaskTable} from './TaskTable.js';
 
       return(
         <TaskTable
-        inputSubmit={this.inputSubmit}
         selected={this.state.selected}
         changeSelected={this.changeSelected}
         />

@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import { Button, Header, Segment, Popup, Icon, Modal } from "semantic-ui-react";
+import { inject, observer } from "mobx-react";
+import { observable } from "mobx";
 
+
+@inject("items")
+@observer
 class Inventory extends Component {
   constructor(props) {
     super(props);
@@ -9,12 +14,12 @@ class Inventory extends Component {
     };
   }
 
-  selectedItem(index) {
+  selectedItem(itemID) {
     this.setState({
-      selected: index
+      selected: itemID
     });
-    if ("addHabit" in this.props) {
-      this.props.addHabit(index);
+    if ("selected" in this.props) {
+      this.props.selected(itemID);
     }
   }
 
@@ -27,8 +32,7 @@ class Inventory extends Component {
           gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))"
         }}
       >
-        {"items" in this.props &&
-          this.props.items.map((value, index) => {
+        {this.props.items.list.map((value, index) => {
             return (
               <Button key={value.id} onClick={() => this.selectedItem(value.id)}>
                 <Segment raised style={{ flexGrow: 0 }}>

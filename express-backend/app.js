@@ -36,9 +36,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/user', users);
-app.use('/user/lists/Tasks',tasksRouter);
-app.use('/user/lists/Habits',habitsRouter);
-app.use('/user/Items',itemsRouter);
+app.use('/lists/tasks',tasksRouter);
+app.use('/lists/habits',habitsRouter);
+app.use('/items',itemsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
